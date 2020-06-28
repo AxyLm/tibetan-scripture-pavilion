@@ -20,7 +20,7 @@ initShell
 
 app.use('/file',FileRouter)
 
-app.use('/public',express.static(path.join(__dirname,'./static/media/')))
+app.use('/public',express.static(path.join(__dirname,'./static/media')))
 app.use('/',express.static(path.join(__dirname,'./static/apidoc'))) //默认页
 
 let port = '1617'

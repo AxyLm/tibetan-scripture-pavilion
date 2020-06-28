@@ -37,34 +37,37 @@ Router.post('/upload',upload.single('img'),(req,res)=>{
   try {
     let types=['jpg','jpeg','png','gif'] //允许上传的数据类型
     let tmp=req.file.mimetype.split('/')[1]
+    let filepath = './static/media/'+req.file.filename
     if(req.file.size>1024 * 1024 * 100){
       return  res.send({code:-1,msg:'尺寸过大'})
     }else if(types.indexOf(tmp)==-1){
       return  res.send({code:-2,msg:'类型错误'})
     }else{
-      let {originalname,size,mimetype} = req.file
-      let filepath = './static/media/'+req.file.filename
+      let { originalname,size,mimetype } = req.file
+      
       let filebuffer = fs.readFileSync( filepath ) // 读取文件
+      let hash = crypto.createHash('md5');
       hash.update( filebuffer );
-      const hash = crypto.createHash('md5');
       let imgMd5 = hash.digest('hex') // 计算MD5
-      dbModel.find({hash:imgMd5}) // 查找重复md5
+      dbModel.findOne({hash:imgMd5})
       .then((hash)=>{
-        if(hash.length == 0 ){
+        if(hash){
+          fs.unlinkSync(filepath)
+          res.send({code:0,msg:'重复的图片',data:{imgPath:hash.path,originalname:hash.originalname}})
+        }else{
           dbModel.insertMany({hash:imgMd5,path:req.file.filename,mimetype,size,originalname}) // 插入图片
           .then((db)=>{
-            res.send({code:0,msg:'success',data:{imgPath:req.file.filename}})
+            res.send({code:0,msg:'success',data:{imgPath:req.file.filename,originalname,mimetype}})
           })
           .catch((err)=>{
+            fs.unlinkSync(filepath)
             logModel.insertMany({log:err,errcode:'file insert err'}) // 捕获错误信息
             res.send({code:1,msg:'内部错误'})
           })
-        }else{ // 返回重复图片路径
-          res.send({code:0,msg:'重复的图片',data:{imgPath:req.file.filename}})
-          //logerr(imgMd5 + req.file.filename,'img hash repeat','图片MD5重复')
         }
       })
       .catch((err)=>{
+        fs.unlinkSync(filepath)
         logerr(err,'file insert err','内部错误')
       })
       
