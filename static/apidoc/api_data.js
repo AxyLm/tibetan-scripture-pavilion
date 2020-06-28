@@ -12,7 +12,14 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "file",
-            "description": "<p>file.</p>"
+            "description": "<p>file</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "name",
+            "description": "<p>img 附件name</p>"
           }
         ]
       }

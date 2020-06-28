@@ -5,6 +5,7 @@ const Router = express.Router()
 const exStatic = require("express-static")
 const db = require('./db/connect')
 const bodyParser = require('body-parser')
+const initShell = require('./bin/doc')
 var jsonParser = bodyParser.json()//解析json
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -15,6 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 const FileRouter = require('./router/fileRouter')
 
+initShell
 
 app.use('/file',FileRouter)
 
